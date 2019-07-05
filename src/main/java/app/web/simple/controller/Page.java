@@ -55,5 +55,15 @@ public class Page {
 		model.put("users", userService.findAllUsers());
 		return "delete-checkbook";
 	}
+	
+	@RequestMapping("/descriptive")
+	public String descriptive() {
+		return "descriptive-statistics/front";
+	}
+	
+	@RequestMapping("/descriptive-everything")
+	public String descriptiveEverything() {
+		return "descriptive-statistics/everything";
+	}
 
 }

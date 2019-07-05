@@ -70,7 +70,6 @@ public class CheckBookManagement {
 			response.sendRedirect("/checkbook");
 		} catch (Exception e) {
 			System.out.println("error delete");
-			e.printStackTrace();
 		}
 	}
 

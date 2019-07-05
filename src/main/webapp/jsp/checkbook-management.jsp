@@ -66,6 +66,8 @@
 						} else {
 							return data;
 						}
+					} else {
+						return data;
 					}					
 				}
 			}, {
@@ -97,6 +99,7 @@
 											select.append('<option value="' + d + '">' + d
 													+ '</option>');
 										} else {
+											console.log(d);
 											select.append('<option value="' + renderFunction(d, 'display', null) + '">'
 													+ renderFunction(d, 'display', null)
 													+ '</option>');

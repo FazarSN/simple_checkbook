@@ -46,7 +46,7 @@
 				<c:forEach items="${users}" var="i">
 					<option value="${i.id}">${i.name}</option>
 				</c:forEach>
-			</select><br> password : <input type="text" name="password" /> <br>
+			</select><br> password : <input type="password" name="password" /> <br>
 			<button type="submit" style="margin-top: 2em;">delete in
 				bulk</button>
 		</form>

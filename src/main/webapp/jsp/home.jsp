@@ -9,7 +9,8 @@
 <body>
 	<h1>Simple</h1>
 	<div>
-		<a href="/user">user</a> <br /> <a href="/checkbook">checkbook</a>
+		<a href="/user">user</a> <br> <a href="/checkbook">checkbook</a>
+		<br> <a href="/descriptive">descriptive statistics</a>
 	</div>
 </body>
 </html>
