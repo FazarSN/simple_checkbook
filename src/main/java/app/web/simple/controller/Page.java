@@ -6,6 +6,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import app.web.simple.service.DescriptiveStatisticsService;
 import app.web.simple.service.UserService;
 
 @Controller
@@ -55,14 +56,18 @@ public class Page {
 		model.put("users", userService.findAllUsers());
 		return "delete-checkbook";
 	}
-	
+
 	@RequestMapping("/descriptive")
 	public String descriptive() {
 		return "descriptive-statistics/front";
 	}
-	
+
+	@Autowired
+	private DescriptiveStatisticsService descriptiveStatisticsService;
+
 	@RequestMapping("/descriptive-everything")
 	public String descriptiveEverything() {
+		descriptiveStatisticsService.tes();
 		return "descriptive-statistics/everything";
 	}
 

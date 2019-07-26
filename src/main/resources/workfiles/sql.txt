@@ -1,0 +1,11 @@
+CheckBookDao.findByUserMonthYear
+select c from CheckBook c 
+where c.user.id = :userId and month(c.occurringDate) = :month 
+and year(c.occurringDate) = :year
+
+DescriptiveStatisticsDao.summarize
+SELECT SUM(a.sum_) AS fazar, MIN(a.sum_), AVG(a.sum_), MAX(a.sum_), COUNT(a.sum_), a.month_, a.year_
+FROM (SELECT SUM(amount) AS sum_,  DAY(c.occurringDate) AS date_, MONTH(c.occurringDate) AS month_, YEAR(c.occurringDate) AS year_
+FROM CheckBook c WHERE c.type = 'expense'
+GROUP BY MONTH(c.occurringDate), YEAR(c.occurringDate), DAY(c.occurringDate)) AS a
+GROUP BY a.month_, a.year_ ORDER BY a.year_, a.month_

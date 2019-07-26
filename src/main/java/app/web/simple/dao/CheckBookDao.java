@@ -10,7 +10,8 @@ import app.web.simple.entity.CheckBook;
 
 public interface CheckBookDao extends JpaRepository<CheckBook, Long> {
 
-	@Query("select c from CheckBook c where c.user.id = :userId and month(c.occurringDate) = :month and year(c.occurringDate) = :year")
+	@Query("select c from CheckBook c \r\n" + "where c.user.id = :userId and month(c.occurringDate) = :month \r\n"
+			+ "and year(c.occurringDate) = :year")
 	public List<CheckBook> findByUserMonthYear(@Param("userId") Long userId, @Param("month") Integer month,
 			@Param("year") Integer year);
 
