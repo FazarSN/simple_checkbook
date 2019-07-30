@@ -3,14 +3,16 @@
 <head>
 <title>CheckBook</title>
 <link rel="stylesheet" type="text/css"
-	href="DataTables/DataTables-1.10.18/css/jquery.dataTables.min.css" />
-<link rel="stylesheet" type="text/css" href="css/simple.css" />
+	href="${request.contextPath}/DataTables/DataTables-1.10.18/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="${request.contextPath}/css/simple.css" />
 </head>
 <body>
-	<script src="jquery/jquery-3.4.1.min.js"></script>
+	<script src="${request.contextPath}/jquery/jquery-3.4.1.min.js"></script>
 	<script type="text/javascript"
-		src="DataTables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" src="DataTables/DateTime/moment.min.js"></script>
+		src="${request.contextPath}/DataTables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript"
+		src="${request.contextPath}/DataTables/DateTime/moment.min.js"></script>
 	<h1>CheckBook</h1>
 	<div style="margin-bottom: 2em;">
 		<a href="/checkbook/upload"><button>Upload Data</button></a> <br>
@@ -40,7 +42,7 @@
 		</tfoot>
 	</table>
 	<div style="margin-top: 2em;">
-		<a href="/">
+		<a href="/checkbook">
 			<button class="block">back</button>
 		</a>
 	</div>
@@ -68,44 +70,35 @@
 						}
 					} else {
 						return data;
-					}					
+					}
 				}
 			}, {
 				"data" : "purpose"
 			}, {
 				"data" : "amount"
 			} ],
-			"initComplete": function() {
+			"initComplete" : function() {
 				var api = this.api();
 				var settings = this.fnSettings();
-				api.columns().indexes().flatten().each(
-						function(i) {
-							var renderFunction = settings.aoColumns[i]["mRender"];
-							var column = api.column(i);
-							var select = $('<select><option value=""></option></select>')
-									.appendTo($(column.footer()).empty()).on(
-											'change',
-											function() {
-												var val = $.fn.dataTable.util
-														.escapeRegex($(this).val());
+				api.columns().indexes().flatten().each(function(i) {
+					var renderFunction = settings.aoColumns[i]["mRender"];
+					var column = api.column(i);
+					var select = $('<select><option value=""></option></select>')
+					.appendTo($(column.footer()).empty()).on('change', function() {
+						var val = $.fn.dataTable.util.escapeRegex($(this).val());
+						column.search(val ? '^' + val + '$' : '', true, false).draw();
+					});
 
-												column.search(val ? '^' + val + '$' : '',
-														true, false).draw();
-											});
-
-							column.data().unique().sort().each(
-									function(d, j) {
-										if (renderFunction == null) {
-											select.append('<option value="' + d + '">' + d
-													+ '</option>');
-										} else {
-											console.log(d);
-											select.append('<option value="' + renderFunction(d, 'display', null) + '">'
-													+ renderFunction(d, 'display', null)
-													+ '</option>');
-										}
-									});
-						});
+					column.data().unique().sort().each(function(d, j) {
+						if (renderFunction == null) {
+							select.append('<option value="' + d + '">' + d + '</option>');
+						} else {
+							console.log(d);
+							select.append('<option value="' + renderFunction(d, 'display', null) + '">'
+									+ renderFunction(d, 'display', null) + '</option>');
+						}
+					});
+				});
 			}
 		});
 	</script>

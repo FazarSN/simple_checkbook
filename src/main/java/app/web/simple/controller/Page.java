@@ -42,19 +42,24 @@ public class Page {
 
 	@RequestMapping("/checkbook")
 	public String checkBook() {
-		return "checkbook-management";
+		return "checkbook/checkbook-management";
+	}
+
+	@RequestMapping("/checkbook/data-page")
+	public String checkBookData() {
+		return "checkbook/checkbook-data";
 	}
 
 	@RequestMapping("/checkbook/upload")
 	public String uploadCheckbook(ModelMap model) {
 		model.put("users", userService.findAllUsers());
-		return "upload-checkbook";
+		return "checkbook/upload-checkbook";
 	}
 
 	@RequestMapping("/checkbook/delete")
 	public String deleteCheckbook(ModelMap model) {
 		model.put("users", userService.findAllUsers());
-		return "delete-checkbook";
+		return "checkbook/delete-checkbook";
 	}
 
 	@RequestMapping("/descriptive")

@@ -55,7 +55,7 @@ public class DescriptiveStatisticsServiceImpl implements DescriptiveStatisticsSe
 				dto.setMax(statistics.getMax());
 				dto.setMin(statistics.getMin());
 				dto.setMonthNumber(Integer.parseInt(month));
-				dto.setMonth(getMonthForInt(Integer.parseInt(month)));
+				dto.setMonth(getMonthForInt(Integer.parseInt(month) - 1));
 				dto.setYear(year);
 				dto.setDate("month");
 				dto.setSum(statistics.getSum());

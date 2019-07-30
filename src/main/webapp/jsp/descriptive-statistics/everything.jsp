@@ -8,6 +8,7 @@
 </head>
 <body>
 	<script src="jquery/jquery-3.4.1.min.js"></script>
+	<script src="numeral/numeral.min.js"></script>
 	<script
 		src="${request.contextPath}/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
 	<button type="button" onClick="showAll()">show all</button>
@@ -27,7 +28,6 @@
 			url : "/descriptive/everything",
 			success : function(result) {
 				var data = result["data"];
-				console.log(data);
 				for ( var key in data) {
 					var obj = data[key];
 					if (obj.date === "all") {
@@ -38,29 +38,54 @@
 						let table = document.getElementById('collapseOne');
 						let newTable = yearTable(obj.count, obj.sum, obj.min,
 								obj.average, obj.max, obj.year);
-						var newContent = document.createElement('table');
+						let newContent = document.createElement('table');
 						newContent.innerHTML = newTable;
 						table.appendChild(newContent);
 					} else {
-						let a = document.getElementById('collapse_'
-								+ obj.year);
+						let a = document.getElementById('collapse_' + obj.year);
 						if (a === null) {
-							console.log("fazar");
+							a = document.createElement('div');
+							a.setAttribute("id", "collapse_" + obj.year);
+							a.setAttribute("class", "collapse");
+							let table = document.getElementById('collapseOne');
+							table.appendChild(a);
 						}
+						let newTable = monthTable(obj.count, obj.sum, obj.min,
+								obj.average, obj.max, obj.month);
+						let newContent = document.createElement('table');
+						newContent.setAttribute("border", "1");
+						newContent.innerHTML = newTable;
+						a.appendChild(newContent);
 					}
 				}
 			}
 		});
+
+		function monthTable(count, sum, min, avg, max, month) {
+			var html = '<tbody>';
+			html += '<tr>';
+			html += '<td>' + month + '</td>';
+			html += "<td>" + count + "</td>";
+			html += "<td>" + numeral(sum).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(min).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(avg).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(max).format('(0.00 a)') + "</td>";
+			html += '<td></td>';
+			html += '</tr>';
+			html += '</tbody>';
+
+			return html;
+		}
 
 		function yearTable(count, sum, min, avg, max, year) {
 			var html = '<tbody>';
 			html += '<tr>';
 			html += '<td>' + year + '</td>';
 			html += "<td>" + count + "</td>";
-			html += "<td>" + sum + "</td>";
-			html += "<td>" + min + "</td>";
-			html += "<td>" + avg + "</td>";
-			html += "<td>" + max + "</td>";
+			html += "<td>" + numeral(sum).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(min).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(avg).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(max).format('(0.00 a)') + "</td>";
 			html += '<td><button type="button" class="showButton"';
 			html += 'onClick="collapseButton(this)" data-target="#collapse_'
 					+ year + '">show</button></td>';
@@ -86,10 +111,10 @@
 			html += "<tr>";
 			html += "<th>ALL</th>";
 			html += "<td>" + count + "</td>";
-			html += "<td>" + sum + "</td>";
-			html += "<td>" + min + "</td>";
-			html += "<td>" + avg + "</td>";
-			html += "<td>" + max + "</td>";
+			html += "<td>" + numeral(sum).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(min).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(avg).format('(0.00 a)') + "</td>";
+			html += "<td>" + numeral(max).format('(0.00 a)') + "</td>";
 			html += '<td><button type="button" class="showButton" onClick="collapseButton(this)" data-target="#collapseOne">show</button></td>';
 			html += "</tr>";
 			html += "</tbody>";

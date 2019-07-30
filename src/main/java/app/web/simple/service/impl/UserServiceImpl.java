@@ -7,7 +7,9 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import app.web.simple.dao.CheckBookDao;
 import app.web.simple.dao.UserDao;
+import app.web.simple.entity.CheckBook;
 import app.web.simple.entity.User;
 import app.web.simple.service.UserService;
 
@@ -17,6 +19,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserDao userDao;
+
+	@Autowired
+	private CheckBookDao checkBookDao;
 
 	@Override
 	public User persist(User user) {
@@ -43,9 +48,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean deleteById(Long id) {
 		try {
-			userDao.deleteById(id);
+			List<CheckBook> checkBook = checkBookDao.findByUserId(id);
+			if (checkBook.size() > 0) {
+				throw new Exception("User masih memiliki checkbook");
+			} else {
+				userDao.deleteById(id);
+			}
 			return true;
 		} catch (Exception e) {
+			System.out.println(e.getLocalizedMessage());
 			return false;
 		}
 	}

@@ -15,6 +15,8 @@ public interface CheckBookDao extends JpaRepository<CheckBook, Long> {
 	public List<CheckBook> findByUserMonthYear(@Param("userId") Long userId, @Param("month") Integer month,
 			@Param("year") Integer year);
 
+	public List<CheckBook> findByUserId(Long userId);
+
 	public void deleteByUser_Id(Long userId);
 
 }
