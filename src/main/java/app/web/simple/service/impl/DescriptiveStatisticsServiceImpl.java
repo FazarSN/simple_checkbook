@@ -25,7 +25,7 @@ public class DescriptiveStatisticsServiceImpl implements DescriptiveStatisticsSe
 	DescriptiveStatisticsDao dao;
 
 	@Override
-	public List<DescriptiveStatisticsDto> tes() {
+	public List<DescriptiveStatisticsDto> descriptiveStatisticsAllData() {
 		List<List<Map<String, Object>>> summarize = dao.summarize();
 		List<DescriptiveStatisticsDto> dtos = new ArrayList<DescriptiveStatisticsDto>();
 		summarize.forEach(a -> {

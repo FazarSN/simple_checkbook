@@ -19,7 +19,7 @@ public class DescriptiveStatistics {
 	public JSONObject tableCheckBookData() {
 		JSONObject result = new JSONObject();
 		try {
-			result.put("data", descriptiveStatisticsService.tes());
+			result.put("data", descriptiveStatisticsService.descriptiveStatisticsAllData());
 		} catch (Exception e) {
 			System.out.println("error showing data");
 			e.printStackTrace();

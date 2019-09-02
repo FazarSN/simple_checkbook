@@ -6,6 +6,6 @@ import app.web.simple.dto.DescriptiveStatisticsDto;
 
 public interface DescriptiveStatisticsService {
 
-	public List<DescriptiveStatisticsDto> tes();
+	public List<DescriptiveStatisticsDto> descriptiveStatisticsAllData();
 
 }

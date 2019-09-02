@@ -56,6 +56,7 @@ public class CheckBookManagement {
 			@RequestParam Long userId) {
 		try {
 			checkBookService.deleteInBulk(userId, month, year);
+			System.out.println("delete berhasil");
 			response.sendRedirect("/checkbook");
 		} catch (Exception e) {
 			System.out.println("error delete");
