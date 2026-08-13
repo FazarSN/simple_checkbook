@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Checkbook</title>
+
+  <!-- PWA: link the web app manifest (preserved from Phase 1 — required for desktop install) -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- PWA: theme color (also in manifest, but Chrome reads it from here too) -->
+  <meta name="theme-color" content="#ffffff">
+
+  <style>
+    /* Reset + box-sizing */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background-color: #FFFFFF;
+      color: #1a1a1a;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 80px;
+    }
+
+    /* Page Title */
+    .page-title {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title h1 {
+      font-size: 2rem;
+      color: #4A90D9;
+      letter-spacing: -0.5px;
+    }
+
+    /* ===== View Toggling (Phase 3) ===== */
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* ===== Balance Display ===== */
+    .balance-section {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      border: 1px solid #e1e4e8;
+    }
+
+    .balance-label {
+      font-size: 0.85rem;
+      color: #656d76;
+      margin-bottom: 4px;
+    }
+
+    .balance-amount {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .balance-amount.positive { color: #4A90D9; }
+    .balance-amount.negative { color: #e74c3c; }
+    .balance-amount.zero { color: #888; }
+
+    /* ===== Entry Form ===== */
+    .entry-form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e1e4e8;
+    }
+
+    .entry-form label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: #656d76;
+    }
+
+    .entry-form input[type="number"],
+    .entry-form input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+    }
+
+    .entry-form select {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      background: white;
+    }
+
+    /* Type selector (Money In / Money Out) */
+    .type-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .type-selector label {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      border: 2px solid #e1e4e8;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #656d76;
+      background: #f8f9fa;
+      transition: all 0.2s;
+    }
+
+    .type-selector input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .type-selector input[type="radio"]:checked + label {
+      border-color: #4A90D9;
+      background-color: #e6f0fa;
+      color: #4A90D9;
+    }
+
+    .entry-form button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background-color: #4A90D9;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .entry-form button:hover {
+      background-color: #3a7bc8;
+    }
+
+    /* ===== Transaction List ===== */
+    .transaction-list {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e1e4e8;
+    }
+
+    .transaction-list table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .transaction-list th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #656d76;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .transaction-list td {
+      padding: 12px;
+      border-top: 1px solid #e1e4e8;
+      font-size: 0.9rem;
+    }
+
+    .transaction-list tbody tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    .transaction-list .amount.money-in { color: #4A90D9; }
+    .transaction-list .amount.money-out { color: #e74c3c; }
+
+    .transaction-list .empty-message {
+      text-align: center;
+      padding: 20px;
+      color: #aaa;
+      font-style: italic;
+    }
+
+    /* ===== Bottom Tab Bar (Phase 3) ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 560px;
+      margin: 0 auto;
+      display: flex;
+      background: white;
+      border-top: 1px solid #e1e4e8;
+      z-index: 100;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #656d76;
+      cursor: pointer;
+      border-top: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-tab.active {
+      color: #4A90D9;
+      border-top-color: #4A90D9;
+    }
+
+    .nav-tab:hover {
+      background-color: #f6f8fa;
+    }
+
+    /* ===== Overflow Menu & Button (Phase 3) ===== */
+    .action-cell {
+      width: 40px;
+      text-align: center;
+      padding: 0;
+    }
+
+    .overflow-btn {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 6px;
+      color: #656d76;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .overflow-btn:hover {
+      color: #333;
+      background-color: #f6f8fa;
+    }
+
+    .overflow-menu {
+      position: fixed;
+      z-index: 1000;
+      min-width: 120px;
+      background: white;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .overflow-menu.hidden {
+      display: none;
+    }
+
+    .overflow-menu .menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #333;
+    }
+
+    .overflow-menu .menu-item:hover {
+      background-color: #f6f8fa;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Title -->
+  <div class="page-title">
+    <h1>Simple Checkbook</h1>
+  </div>
+
+  <!-- ===== List View (default active) ===== -->
+  <div class="view active" id="list-view">
+    <!-- Running Balance -->
+    <div class="balance-section">
+      <div class="balance-label">Running Balance</div>
+      <div id="balance" class="balance-amount zero">Rp 0</div>
+    </div>
+
+    <!-- Transaction List -->
+    <div class="transaction-list">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Account</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="transaction-list">
+          <tr>
+            <td colspan="6" class="empty-message">No entries yet</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== Add Transaction View (inactive by default) ===== -->
+  <div class="view" id="add-view">
+    <div class="entry-form">
+      <form id="cashflow-form">
+        <fieldset>
+          <legend style="font-size: 0.85rem; font-weight: 600; color: #656d76; margin-bottom: 8px;">Type</legend>
+          <div class="type-selector">
+            <input type="radio" id="type-in" name="type" value="money-in" checked>
+            <label for="type-in">Money In (+)</label>
+            <input type="radio" id="type-out" name="type" value="money-out">
+            <label for="type-out">Money Out (&minus;)</label>
+          </div>
+        </fieldset>
+
+        <label for="amount">Amount</label>
+        <input type="number" id="amount" name="amount" min="1" step="1" required>
+
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Salary, Groceries">
+
+        <label for="category" style="margin-top: 12px;">Category</label>
+        <select id="category" name="category"></select>
+
+        <label for="account" style="margin-top: 12px;">Account</label>
+        <select id="account" name="account"></select>
+
+        <button type="submit" id="submit-btn">Add Entry</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Bottom Tab Bar ===== -->
+  <div class="bottom-nav">
+    <button id="tab-list" class="nav-tab active">List</button>
+    <button id="tab-add" class="nav-tab">Add Transaction</button>
+  </div>
+
+  <!-- ===== Overflow Menu (shared, dynamically positioned) ===== -->
+  <div id="overflow-menu" class="overflow-menu hidden">
+    <button id="menu-edit" class="menu-item" type="button">Edit</button>
+    <button id="menu-delete" class="menu-item" type="button">Delete</button>
+  </div>
+
+  <script src="constants.js"></script>
+  <script>
+    // PWA: Register the service worker (Phase 1 stub, no caching logic).
+    // Preserved from Phase 1 so the app remains installable on desktop Chrome.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js')
+          .then(function (registration) {
+            console.log('ServiceWorker registered (scope: ' + registration.scope + ')');
+          })
+          .catch(function (error) {
+            console.error('ServiceWorker registration failed: ', error);
+          });
+      });
+    }
+
+    // ===== State Variables (Phase 3) =====
+    let transactions = [];
+    let nextId = 1;
+    let editId = null;
+    let currentView = 'list';
+    let activeMenuId = null;
+
+    // Populate the category and account <select> elements from constants
+    function populateSelects() {
+      var categorySelect = document.getElementById('category');
+      var accountSelect = document.getElementById('account');
+
+      CATEGORIES.forEach(function (cat) {
+        var opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+
+      ACCOUNTS.forEach(function (acc) {
+        var opt = document.createElement('option');
+        opt.value = acc;
+        opt.textContent = acc;
+        accountSelect.appendChild(opt);
+      });
+    }
+
+    // Format a signed amount as Indonesian Rupiah: Rp 1.000.000 or −Rp 50.000
+    // Positive/zero → "Rp N.NNN"; negative → "−Rp N.NNN" (Unicode minus).
+    // Amounts are rounded to whole numbers via Math.round().
+    function formatRupiah(amount) {
+      var abs = Math.round(Math.abs(amount));
+      var str = abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return amount < 0 ? '−Rp ' + str : 'Rp ' + str;
+    }
+
+    // Compute running balance = sum of all transaction amounts
+    function computeBalance() {
+      return transactions.reduce(function (sum, tx) {
+        return sum + tx.amount;
+      }, 0);
+    }
+
+    // Update the balance display element
+    function updateBalance() {
+      var balance = computeBalance();
+      var balanceEl = document.getElementById('balance');
+      balanceEl.textContent = formatRupiah(balance);
+      balanceEl.className = 'balance-amount ' +
+        (balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero');
+    }
+
+    // Render the transaction list from the in-memory array
+    function renderTransactions() {
+      var listEl = document.getElementById('transaction-list');
+
+      if (transactions.length === 0) {
+        listEl.innerHTML = '<tr><td colspan="6" class="empty-message">No entries yet</td></tr>';
+      } else {
+        listEl.innerHTML = transactions.map(function (tx) {
+          var typeLabel = tx.type === 'money-in' ? 'Money In' : 'Money Out';
+          var amountClass = tx.type === 'money-in' ? 'money-in' : 'money-out';
+          return '<tr data-tx-id="' + tx.id + '">' +
+            '<td>' + typeLabel + '</td>' +
+            '<td>' + (tx.name || '') + '</td>' +
+            '<td class="amount ' + amountClass + '">' + formatRupiah(tx.amount) + '</td>' +
+            '<td>' + tx.category + '</td>' +
+            '<td>' + tx.account + '</td>' +
+            '<td class="action-cell">' +
+            '<button class="overflow-btn" type="button" data-tx-id="' + tx.id + '" title="More actions">⋮</button>' +
+            '</td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      updateBalance();
+    }
+
+    // ===== View Navigation (Phase 3) =====
+    // Toggle between List and Add Transaction views, highlighting the active tab
+    function showView(tabName) {
+      currentView = tabName;
+
+      var listTab = document.getElementById('tab-list');
+      var addTab = document.getElementById('tab-add');
+      var listView = document.getElementById('list-view');
+      var addView = document.getElementById('add-view');
+
+      if (tabName === 'list') {
+        listTab.classList.add('active');
+        addTab.classList.remove('active');
+        listView.classList.add('active');
+        addView.classList.remove('active');
+      } else {
+        addTab.classList.add('active');
+        listTab.classList.remove('active');
+        addView.classList.add('active');
+        listView.classList.remove('active');
+      }
+    }
+
+    // Handle form submission — adds a new transaction or updates an existing one
+    function addTransaction(event) {
+      event.preventDefault();
+
+      var type = document.querySelector('input[name="type"]:checked').value;
+      var amountInput = document.getElementById('amount');
+      var amount = parseFloat(amountInput.value);
+      var name = document.getElementById('name').value.trim();
+      var category = document.getElementById('category').value;
+      var account = document.getElementById('account').value;
+
+      if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid amount greater than 0.');
+        amountInput.focus();
+        return;
+      }
+
+      // Convert "money-out" to negative amount
+      var signedAmount = type === 'money-out' ? -amount : amount;
+
+      if (editId !== null) {
+        // ——— Edit mode: update existing transaction in place ———
+        var idx = transactions.findIndex(function (t) { return t.id === editId; });
+        if (idx !== -1) {
+          transactions[idx].type = type;
+          transactions[idx].amount = signedAmount;
+          transactions[idx].name = name;
+          transactions[idx].category = category;
+          transactions[idx].account = account;
+        }
+
+        // Reset edit state and UI
+        editId = null;
+        document.getElementById('submit-btn').textContent = 'Add Entry';
+        renderTransactions();
+        event.target.reset();
+        document.getElementById('name').value = '';
+        document.getElementById('type-in').checked = true;
+        showView('list');
+      } else {
+        // ——— Add mode: push a new transaction ———
+        transactions.push({
+          id: nextId++,
+          type: type,
+          amount: signedAmount,
+          name: name,
+          category: category,
+          account: account
+        });
+
+        renderTransactions();
+        event.target.reset();
+        document.getElementById('name').value = '';
+        document.getElementById('type-in').checked = true;
+      }
+    }
+
+    // ===== Delete Transaction (Phase 3) =====
+    function deleteTransaction(id) {
+      if (confirm('Delete this transaction?')) {
+        transactions = transactions.filter(function (t) { return t.id !== id; });
+        renderTransactions();
+        closeOverflowMenu();
+      }
+    }
+
+    // ===== Edit Transaction (Phase 3) =====
+    // Pre-fill the form with the transaction's values and switch to Add tab
+    function editTransaction(id) {
+      var tx = transactions.find(function (t) { return t.id === id; });
+      if (!tx) return;
+
+      editId = id;
+
+      // Pre-fill the form with the transaction's current values
+      if (tx.type === 'money-in') {
+        document.getElementById('type-in').checked = true;
+      } else {
+        document.getElementById('type-out').checked = true;
+      }
+      document.getElementById('amount').value = Math.abs(tx.amount);
+      document.getElementById('name').value = tx.name || '';
+      document.getElementById('category').value = tx.category;
+      document.getElementById('account').value = tx.account;
+
+      // Relabel the submit button to indicate edit mode
+      document.getElementById('submit-btn').textContent = 'Update Entry';
+
+      // Switch to the Add Transaction tab
+      showView('add');
+
+      // Close any open overflow menu
+      closeOverflowMenu();
+    }
+
+    // ===== Overflow Menu (Phase 3) =====
+    // Toggle the overflow menu for a given transaction row
+    function toggleOverflowMenu(id, button) {
+      var menu = document.getElementById('overflow-menu');
+
+      // If the same row's button is clicked again while menu is open, close it
+      if (activeMenuId === id && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        activeMenuId = null;
+        return;
+      }
+
+      // Position the menu just below the overflow button
+      var rect = button.getBoundingClientRect();
+      menu.style.left = rect.left + 'px';
+      menu.style.top = (rect.bottom + 5) + 'px';
+
+      activeMenuId = id;
+      menu.classList.remove('hidden');
+    }
+
+    // Close the overflow menu
+    function closeOverflowMenu() {
+      var menu = document.getElementById('overflow-menu');
+      menu.classList.add('hidden');
+      activeMenuId = null;
+    }
+
+    // ===== Wire up DOM — attach listeners, populate selects, and initialize =====
+    document.addEventListener('DOMContentLoaded', function () {
+      populateSelects();
+
+      // Form submission (add or update)
+      document.getElementById('cashflow-form').addEventListener('submit', addTransaction);
+
+      // Bottom tab button click listeners
+      document.getElementById('tab-list').addEventListener('click', function () {
+        showView('list');
+        closeOverflowMenu();
+      });
+      document.getElementById('tab-add').addEventListener('click', function () {
+        showView('add');
+        closeOverflowMenu();
+      });
+
+      // Event delegation for overflow (⋮) buttons in the transaction table body
+      var listBody = document.getElementById('transaction-list');
+      listBody.addEventListener('click', function (event) {
+        var btn = event.target.closest('.overflow-btn');
+        if (btn) {
+          event.stopPropagation();
+          var id = parseInt(btn.getAttribute('data-tx-id'));
+          toggleOverflowMenu(id, btn);
+        }
+      });
+
+      // Overflow menu item: Edit
+      document.getElementById('menu-edit').addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (activeMenuId !== null) {
+          editTransaction(activeMenuId);
+        }
+      });
+
+      // Overflow menu item: Delete
+      document.getElementById('menu-delete').addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (activeMenuId !== null) {
+          deleteTransaction(activeMenuId);
+        }
+      });
+
+      // Click-outside handler: close the overflow menu when clicking elsewhere
+      document.addEventListener('click', function (event) {
+        if (activeMenuId !== null) {
+          var menu = document.getElementById('overflow-menu');
+          var isInsideMenu = menu.contains(event.target);
+          var isOverflowBtn = event.target.closest('.overflow-btn') !== null;
+          if (!isInsideMenu && !isOverflowBtn) {
+            closeOverflowMenu();
+          }
+        }
+      });
+
+      // Initialize: List view is active by default, form is hidden
+      showView('list');
+      renderTransactions();
+    });
+  </script>
+</body>
+</html>

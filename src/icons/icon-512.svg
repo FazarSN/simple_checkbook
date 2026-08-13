@@ -1,0 +1,16 @@
+<!-- 512×512 app icon for Simple Checkbook PWA -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="84" fill="#4A90D9"/>
+  <!-- Checkbook outline -->
+  <rect x="96" y="116" width="320" height="280" rx="20" fill="#ffffff"/>
+  <!-- Check line 1 -->
+  <line x1="136" y1="180" x2="376" y2="180" stroke="#4A90D9" stroke-width="10" stroke-linecap="round"/>
+  <!-- Check line 2 -->
+  <line x1="136" y1="232" x2="376" y2="232" stroke="#4A90D9" stroke-width="10" stroke-linecap="round"/>
+  <!-- Check line 3 -->
+  <line x1="136" y1="284" x2="256" y2="284" stroke="#4A90D9" stroke-width="10" stroke-linecap="round"/>
+  <!-- Dashed line -->
+  <line x1="136" y1="336" x2="376" y2="336" stroke="#4A90D9" stroke-width="8" stroke-dasharray="16,10"/>
+  <!-- Dollar sign -->
+  <text x="404" y="404" text-anchor="middle" font-family="Arial, sans-serif" font-size="128" font-weight="bold" fill="#ffffff">$</text>
+</svg>
