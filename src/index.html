@@ -211,6 +211,7 @@
       background: white;
       border-top: 1px solid #e1e4e8;
       z-index: 100;
+      touch-action: manipulation;
     }
 
     .nav-tab {
@@ -629,7 +630,17 @@
         showView('list');
         closeOverflowMenu();
       });
+      document.getElementById('tab-list').addEventListener('touchend', function (e) {
+        e.preventDefault();
+        showView('list');
+        closeOverflowMenu();
+      });
       document.getElementById('tab-add').addEventListener('click', function () {
+        showView('add');
+        closeOverflowMenu();
+      });
+      document.getElementById('tab-add').addEventListener('touchend', function (e) {
+        e.preventDefault();
         showView('add');
         closeOverflowMenu();
       });
