@@ -35,12 +35,13 @@ archived:
 ## Current Status
 - **Code**: All features from phases 1–4 are implemented in `src/` and
   verified spec-compliant at time of archive.
-- **Specs**: Six specifications exist in `openspec/specs/` — `checkbook-app`,
+- **Specs**: Seven specifications exist in `openspec/specs/` — `checkbook-app`,
   `cashflow-entries`, `entry-constants`, `money-formatting`, `app-navigation`,
-  `transaction-actions`.
+  `transaction-actions`, and `tab-switch-android` (bug-fix spec).
 - **Memory Bank**: Initiated — all six core files created.
 - **OpenSpec changes**: All four phases archived in
-  `openspec/changes/archive/`.
+  `openspec/changes/archive/`; plus a bug-fix change
+  `2026-08-17-fix-tab-switch-android` applied (pending archive).
 
 ## Spec Compliance Status
 | Spec | Status | Notes |
@@ -51,6 +52,7 @@ archived:
 | `money-formatting` | ✅ Implemented | `formatRupiah()` — Rupiah, dot separators, no decimals |
 | `app-navigation` | ✅ Implemented | Bottom tab bar, List/Add views |
 | `transaction-actions` | ✅ Implemented | Overflow menu, edit, delete with confirmation |
+| `tab-switch-android` | ✅ Bug fixed | `populateSelects()` guard + README corrected for Android `file://` |
 
 ## Known Issues
 1. **Spec drift — account values**: The `cashflow-entries` spec lists
@@ -61,6 +63,12 @@ archived:
    not yet supported (deferred to Phase 5).
 3. **Session-scoped data**: Reloading the page resets all transactions to
    empty. This is by design for phases 1–4 but is the primary limitation.
+4. **Android `file://` limitation (mitigated)**: Opening `src/index.html` via
+   `file://` on Android Chrome blocks external scripts (`constants.js`,
+   `sw.js`), emptying the category/account dropdowns and disabling the service
+   worker. A `populateSelects()` guard now keeps tab switching working even in
+   this mode; for full functionality (populated dropdowns + PWA install) serve
+   over HTTP (e.g. `python -m http.server` from `src/`).
 
 ## Evolution of Project Decisions
 - **Phase 1**: Established the zero-dependency PWA scaffold and the OpenSpec
@@ -72,3 +80,7 @@ archived:
 - **Phase 4**: Externalized constants into `constants.js` for annual updates;
   added the `name` field and Rupiah money formatting. Deferred persistence
   and offline support to a later phase.
+- **Bug fix (2026-08-17)**: Diagnosed and fixed the Android tab-switch bug.
+  Root cause was an init abort (`populateSelects()` threw because `constants.js`
+  is blocked under `file://` on Android), not touch events. Fixed with a
+  `typeof` guard; README corrected; added a `tab-switch-android` spec + change.

@@ -92,11 +92,21 @@ simple_checkbook/
 
 ### Option A — Open directly (quick check)
 
-Double-click `src/index.html` in Chrome. The app loads instantly — all CSS
-and JS are inline, with no external stylesheets or fonts.
+Double-click `src/index.html` in Chrome. The page renders instantly from a single
+HTML file — **however, `index.html` loads two external scripts** (`constants.js`
+for the Category / Account option lists, and `sw.js` for the service worker), so
+they are **not** fully inline.
 
-> ⚠️ **Service workers require an HTTP origin.** To test installability and
-> service-worker registration, use Option B.
+> ⚠️ **Android + `file://` limitation.** Android Chrome blocks external scripts
+> when a page is opened via `file://` (the file origin disallows fetching sibling
+> scripts on Android). If you double-click `index.html` on Android:
+> - the **Category** and **Account** dropdowns in the entry form will be empty, and
+> - the service worker will **not** register (no PWA install).
+>
+> Tab switching itself still works under `file://` (a missing `constants.js` no
+> longer aborts initialization — see the guard in `populateSelects()`), but for
+> **full functionality** — populated dropdowns and PWA installability — use
+> Option B (a local HTTP server, which the service worker also requires).
 
 ### Option B — Local web server (recommended for full PWA testing)
 

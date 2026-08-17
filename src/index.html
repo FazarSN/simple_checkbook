@@ -403,6 +403,24 @@
 
     // Populate the category and account <select> elements from constants
     function populateSelects() {
+      // Guard: constants.js is loaded as an external <script> and is blocked
+      // when the app is opened via file:// on Android Chrome (external scripts
+      // cannot be fetched from the file:// origin on Android). If it didn't
+      // load, CATEGORIES / ACCOUNTS are undeclared and a direct reference would
+      // throw ReferenceError. Because populateSelects() is the FIRST statement
+      // of the DOMContentLoaded callback, that throw aborts init BEFORE the
+      // bottom-tab click/touchend listeners are attached — so tab switching
+      // silently does nothing. `typeof` is safe against an undeclared
+      // identifier; bail out so the rest of init (tabs, list, balance,
+      // actions) still runs. Serve over HTTP for populated dropdowns + SW.
+      if (typeof CATEGORIES === 'undefined' || typeof ACCOUNTS === 'undefined') {
+        console.warn('Simple Checkbook: src/constants.js did not load. ' +
+          'Serve over HTTP (e.g. "python -m http.server" from src/) for ' +
+          'populated dropdowns and SW registration. Tab switching still works; ' +
+          'Category/Account dropdowns left empty in this degraded mode.');
+        return;
+      }
+
       var categorySelect = document.getElementById('category');
       var accountSelect = document.getElementById('account');
 
