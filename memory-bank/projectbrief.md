@@ -16,21 +16,23 @@ zero external dependencies — only a text editor and a browser are required.
 3. Provide add / edit / delete operations via an overflow menu on each
    transaction row.
 4. Be installable on Android (home-screen launch in standalone mode).
-5. Eventually support data persistence and offline capability (Phase 5).
+5. **Implement data persistence and offline capability (done in Phase 5):** transactions survive reloads via IndexedDB; the app shell loads offline via service-worker caching.
 
 ## Scope
-- **In scope**: Single-file PWA (HTML + inline CSS + inline JS), external
-  `constants.js` for category/account lists, service-worker stub, web app
-  manifest, SVG icons.
-- **Out of scope / deferred**: Offline caching of app shell and data
-  persistence to IndexedDB (planned for Phase 3+). Transaction data is
-  currently session-scoped (lost on reload).
+- **In scope**: Single-file PWA (HTML + inline CSS + inline JS) with inlined
+  `CATEGORIES`/`ACCOUNTS` constants (no external `constants.js`), service worker
+  with app-shell caching, web app manifest, SVG icons, IndexedDB persistence.
+- **Out of scope / deferred**: Cloud sync, user accounts, data export/import,
+  background sync, and push notifications (explicitly out of scope in the Phase 5
+  design). All original roadmap items (phases 1–5) are implemented.
 
 ## Development Methodology
 - **OpenSpec** (`schema: spec-driven`) — every feature begins as a spec
   (`openspec/specs/<name>/spec.md`), then progresses through proposal → design
   → tasks → apply → archive within `openspec/changes/`.
-- Specs already implemented and archived: phases 1 through 4.
+- Specs implemented: phases 1 through 5. Phase 5 change
+  `phase-5-persistence-offline` is applied to code but **not yet archived** —
+  a documentation/memory-bank step remains before archiving.
 
 ## Key Stakeholder
 A single user developing this app solo for personal use, with a focus on

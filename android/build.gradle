@@ -1,0 +1,41 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:9.0.1'
+    }
+}
+
+subprojects {
+    plugins.withId('com.android.application') {
+        android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_25
+                targetCompatibility JavaVersion.VERSION_25
+            }
+        }
+    }
+    plugins.withId('com.android.library') {
+        android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_25
+                targetCompatibility JavaVersion.VERSION_25
+            }
+        }
+    }
+    plugins.withId('org.jetbrains.kotlin.android') {
+        kotlin {
+            jvmToolchain(25)
+        }
+    }
+    afterEvaluate {
+        if (plugins.hasPlugin('org.jetbrains.kotlin.android')) {
+            extensions.getByName('kotlin').jvmToolchain(25)
+            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions.jvmTarget = '21'
+            }
+        }
+    }
+}

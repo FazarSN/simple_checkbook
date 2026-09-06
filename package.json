@@ -1,0 +1,19 @@
+{
+  "name": "simple-checkbook",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "build:web": "python _extract_js.py",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:debug": "npx cap sync android && android\\gradlew.bat -p android assembleDebug",
+    "android:release": "npx cap sync android && android\\gradlew.bat -p android assembleRelease"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7.6.9",
+    "@capacitor/android": "7.6.9",
+    "@capacitor/core": "7.6.9",
+    "@capacitor/filesystem": "7.1.8"
+  }
+}

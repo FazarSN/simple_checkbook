@@ -26,6 +26,8 @@ operates primarily in Indonesia, hence the Rupiah currency convention
 4. User can **edit** or **delete** any existing transaction via its overflow
    menu.
 5. The app is installable on Android (standalone mode, home-screen launch).
+6. Transactions persist across reloads (IndexedDB); the app shell loads offline
+   after first visit (service-worker caching).
 
 ## User Experience Goals
 - **Instant load**: single HTML file with inline CSS, no external stylesheets
@@ -35,11 +37,11 @@ operates primarily in Indonesia, hence the Rupiah currency convention
   dot-separated, with a visible minus sign for outflows.
 - **Intuitive actions**: edit and delete are one tap away via an unobtrusive
   overflow menu.
-- **No account needed**: session-scoped by default (Phase 1–4); persistence
-  planned for a later phase.
+- **No account needed**: data is persisted locally to IndexedDB; offline
+  app-shell caching means a reliable experience without a network.
 
 ## Target Environment
 - **Devices**: Android (low-spec) and desktop Chrome.
-- **Connectivity**: ideally works offline (Phase 5 goal); currently requires a
-  page load.
+- **Connectivity**: works offline after the first visit thanks to service-worker
+  app-shell caching.
 - **Input**: touchscreen-first, but also usable with mouse/keyboard.
