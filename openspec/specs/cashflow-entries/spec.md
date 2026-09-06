@@ -46,12 +46,24 @@ The system SHALL display a running balance computed as the sum of all money-in e
 - **WHEN** user has recorded a money-in entry of 100 (Income, Checking) and a money-out entry of 50 (Food, Cash)
 - **THEN** the running balance displays "+50"
 
-### Requirement: Entries are session-scoped (no persistence)
-The system SHALL hold all cashflow entries in memory only; entries are lost when the page is reloaded or closed.
+### Requirement: APK entries are durable
 
-#### Scenario: Entries are lost on page reload
-- **WHEN** user has recorded cashflow entries and reopens or reloads the app
-- **THEN** the transaction list is empty and the running balance is zero
+The APK SHALL persist all cashflow entries to its native SQLite database and load
+them on application startup. Entries SHALL survive page reloads, app restarts,
+and normal APK upgrades. The running balance and transaction list SHALL reflect
+persisted data as the single source of truth.
+
+#### Scenario: Entries survive page reload
+- **WHEN** user has recorded cashflow entries and reloads the page
+- **THEN** the transaction list displays all previously recorded entries and the running balance reflects their sum
+
+#### Scenario: App initializes from persisted data
+- **WHEN** the app starts up with previously persisted transactions
+- **THEN** the transaction list and running balance load from SQLite
+
+#### Scenario: New transaction is persisted on entry
+- **WHEN** user submits the cashflow entry form
+- **THEN** the new transaction is written to SQLite and appears in the list
 
 ### Requirement: Transactions have unique identifiers
 The system SHALL assign a unique identifier to each transaction to support edit and delete operations targeting the correct entry.
@@ -73,6 +85,27 @@ The system SHALL allow the user to delete an existing transaction. When deleted,
 #### Scenario: User deletes a transaction
 - **WHEN** user selects "Delete" for a transaction and confirms the deletion
 - **THEN** the transaction is removed from the list, the list re-renders, and the running balance reflects the change
+
+### Requirement: User can assign a Date to a cashflow entry
+The system SHALL allow the user to provide a date for each cashflow entry via a
+date input field in the entry form. The date input SHALL be pre-filled with the
+current day by default. The date SHALL be stored as a `date` property on the
+transaction object and SHALL be saved alongside the transaction's type, amount,
+name, category, and account.
+
+#### Scenario: Date defaults to the current day
+- **WHEN** the user opens the cashflow entry form
+- **THEN** the date input is pre-filled with the current day
+
+#### Scenario: User records a cashflow entry with a custom date
+- **WHEN** the user changes the date input to a specific date, fills in the entry
+  form, and submits
+- **THEN** the entry appears in the transaction list with the selected date stored
+  on the transaction object
+
+#### Scenario: Date resets to the current day after submission
+- **WHEN** the user successfully submits the cashflow entry form
+- **THEN** the date input resets to the current day
 
 ### Requirement: User can assign a Name to a cashflow entry
 The system SHALL allow the user to provide a short text name (a free-text description) for each cashflow entry via a text input field in the entry form. The Name SHALL be stored as a `name` property on the transaction object and SHALL be saved alongside the transaction's type, amount, category, and account.
